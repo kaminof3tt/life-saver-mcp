@@ -1,0 +1,28 @@
+{
+  "handlers": {
+    "lanhu": {
+      "enabled": true,
+      "auth": {
+        "type": "cookie",
+        "env": "LANHU_COOKIE"
+      }
+    },
+    "zentao": {
+      "enabled": false,
+      "url": "http://zentao.example.com",
+      "auth": {
+        "type": "cookie",
+        "env": "ZENTAO_COOKIE"
+      }
+    }
+  },
+  "providers": [
+    {
+      "type": "openai",
+      "api_key_env": "OPENAI_API_KEY",
+      "base_url": "https://api.openai.com/v1",
+      "models": ["gpt-4o"],
+      "default": true
+    }
+  ]
+}
