@@ -57,8 +57,9 @@ jobs:
       - name: 写入版本与依赖（不提交）
         run: node scripts/apply-version.mjs "${{ steps.version.outputs.value }}"
 
-      - run: npm install
+      - run: npm install --no-audit --no-fund
       - run: npm run build
+      - run: npm run typecheck
       - run: npm test
 
       - name: 发布

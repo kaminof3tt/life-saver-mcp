@@ -1,0 +1,54 @@
+name: ci
+
+# 每次推到 main 与每个 PR 都跑一遍：构建 + 类型检查 + 19 个用例。
+#
+# 这个包依赖 life-saver-core。它还没发到 npm 之前，安装会直接 ETARGET，
+# 所以这里先探一次：查得到就正常跑，查不到就给一条 warning 跳过——
+# 等 core 上线（repo1 的 release 流水线跑完）之后，同样的 workflow 自动开始真正干活。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 确认 life-saver-core 可从 npm 安装
+        id: core
+        run: |
+          VERSION="$(node -p "require('./package.json').dependencies['life-saver-core']")"
+          echo "core 版本：$VERSION"
+          if npm view "life-saver-core@$VERSION" version > /dev/null 2>&1; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::life-saver-core@$VERSION 还没发到 npm，跳过构建与测试"
+          fi
+
+      - if: steps.core.outputs.available == 'true'
+        run: npm install --no-audit --no-fund
+
+      - if: steps.core.outputs.available == 'true'
+        run: npm run build
+
+      - if: steps.core.outputs.available == 'true'
+        run: npm run typecheck
+
+      - if: steps.core.outputs.available == 'true'
+        run: npm test
