@@ -1,0 +1,74 @@
+name: release
+
+# 发布 = 往这个仓推一个 v* tag，或者在 Actions 里手动跑一次并填版本号。
+# MCP 壳用的是「拉」而不是「推」：先确认同版本的 life-saver-core 已经在 npm 上，
+# 再把版本号写进 manifest 发布，所以本仓不需要任何跨仓凭证。
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 要发布的版本号，例如 0.1.0
+        required: true
+        type: string
+      dry_run:
+        description: 只构建和测试，不真正发布
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write # --provenance 需要
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: 解析版本号
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 确认 core 已发布
+        run: |
+          VERSION="${{ steps.version.outputs.value }}"
+          echo "目标版本：$VERSION"
+          npm view "life-saver-core@$VERSION" version > /dev/null
+          echo "life-saver-core@$VERSION 已在 npm 上，可以发壳"
+
+      - name: 写入版本与依赖（不提交）
+        run: node scripts/apply-version.mjs "${{ steps.version.outputs.value }}"
+
+      - run: npm install
+      - run: npm run build
+      - run: npm test
+
+      - name: 发布
+        if: ${{ inputs.dry_run != true }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.value }}"
+          if npm view "life-saver-mcp@$VERSION" version > /dev/null 2>&1; then
+            echo "life-saver-mcp@$VERSION 已经发布过，跳过"
+            exit 0
+          fi
+          npm publish --provenance --access public

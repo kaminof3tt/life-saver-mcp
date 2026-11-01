@@ -1,0 +1,37 @@
+{
+  "mode": "auto",
+  "http": {
+    "baseUrl": "http://zentao.example.com",
+    "account": "your-account",
+    "timeoutMs": 60000,
+    "skin": "auto"
+  },
+  "db": {
+    "host": "10.0.0.9",
+    "port": 3306,
+    "database": "zentao",
+    "user": "reader",
+    "prefix": "zt_",
+    "connectionLimit": 4
+  },
+  "sftp": {
+    "host": "10.0.0.9",
+    "port": 22,
+    "user": "reader",
+    "uploadBase": "/var/www/zentao/data/upload"
+  },
+  "write": {
+    "enabled": true,
+    "mode": "http",
+    "allowOthers": false
+  },
+  "limits": {
+    "maxAttachments": 40,
+    "maxAttachmentBytes": 20971520,
+    "maxRelated": 8
+  },
+  "discovery": {
+    "enabled": true,
+    "ttlMs": 600000
+  }
+}

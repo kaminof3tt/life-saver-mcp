@@ -1,0 +1,14 @@
+node_modules/
+lib/
+*.tgz
+npm-debug.log*
+.env
+.env.*
+.DS_Store
+Thumbs.db
+zentao-extract/
+.idea/
+.vscode/
+
+# 等 life-saver-core 发到 npm 之后再提交回来（现在依赖指向尚未发布的版本）
+package-lock.json

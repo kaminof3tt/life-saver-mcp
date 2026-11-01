@@ -1,0 +1,16 @@
+{
+  "handlers": {
+    "design": {
+      "enabled": true
+    },
+    "zentao": {
+      "enabled": false,
+      "url": "http://legacy.example.com"
+    }
+  },
+  "providers": [
+    {
+      "type": "vision"
+    }
+  ]
+}

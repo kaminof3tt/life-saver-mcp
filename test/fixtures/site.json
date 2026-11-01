@@ -1,0 +1,11 @@
+{
+  "baseUrl": "http://file.example.com",
+  "db": {
+    "host": "10.0.0.9",
+    "port": 3306,
+    "database": "zentao"
+  },
+  "write": {
+    "enabled": true
+  }
+}

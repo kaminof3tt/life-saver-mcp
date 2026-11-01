@@ -1,0 +1,46 @@
+{
+  "name": "life-saver-mcp",
+  "version": "0.0.1",
+  "description": "禅道（ZenTao）MCP 服务器：按编号读需求/任务/BUG 的正文、备注、操作记录与附件；搜禅道；查工时；写任务/BUG（开始、记工时、完成、解决、关闭、备注）。",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "zentao",
+    "禅道",
+    "zen tao",
+    "project-management",
+    "bug-tracker"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "life-saver-mcp": "lib/index.js"
+  },
+  "main": "lib/index.js",
+  "files": [
+    "lib/**/*.js",
+    "lib/**/*.d.ts",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "pretest": "npm run build",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1",
+    "life-saver-core": "0.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaminof3tt/life-saver-mcp.git"
+  }
+}
