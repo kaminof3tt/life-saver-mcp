@@ -121,7 +121,9 @@ npm i --no-save ../dsh-life-saver/packages/core
 
 ## 发布
 
-推一个 `v*` tag，或手动触发 `release` workflow（`workflow_dispatch` 带版本号）。workflow 会先确认目标版本的 `life-saver-core` 已经发布到 npm，再改 manifest 里的版本与依赖、构建、发布，全程不需要跨仓凭证。
+推一个 `v*` tag，或手动触发 `release` workflow（`workflow_dispatch` 带版本号）。workflow 会先确认目标版本的 `life-saver-core` 已经发布到 npm，再改 manifest 里的版本与依赖、构建、发布，全程不需要跨仓凭证。只在 CI 里发布（`NPM_TOKEN` 是仓里的 secret），本地直接 `npm publish` 会绕过版本断言。
+
+另一个 workflow 是 `ci`：推到 `main` 与每个 PR 都跑构建、类型检查和测试。**在 `life-saver-core` 上 npm 之前，它会先探一次依赖能不能安装**——查不到就只留一条 warning 跳过，不会因为 `ETARGET` 红一片；等 core 上线后，同一个 workflow 自动开始真正干活。
 
 ## 声明
 
