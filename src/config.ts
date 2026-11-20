@@ -7,6 +7,10 @@
  *
  * 优先级：命令行 `--config <file>` 里的值 < 环境变量。密码只认环境变量。
  * 这样「把站点写进 client 配置、把密码写进 shell 环境」是最自然的用法。
+ *
+ * `targets` 例外：工作区目标表是一大段 JSON，塞进环境变量既难读又容易被客户端
+ * 的转义规则咬。所以另给一个 `ZENTAO_TARGETS_FILE`，直接指向那份 JSON 文件；
+ * 两个都给了以 `ZENTAO_TARGETS` 为准。
  */
 
 import { readFileSync } from "node:fs";
@@ -52,6 +56,7 @@ export const ENV = {
   writeAllowOthers: "ZENTAO_WRITE_ALLOW_OTHERS",
   outputDir: "ZENTAO_OUTPUT_DIR",
   targets: "ZENTAO_TARGETS",
+  targetsFile: "ZENTAO_TARGETS_FILE",
   maxAttachments: "ZENTAO_MAX_ATTACHMENTS",
   maxAttachmentBytes: "ZENTAO_MAX_ATTACHMENT_BYTES",
   maxRelated: "ZENTAO_MAX_RELATED",
@@ -99,11 +104,30 @@ function group(target: Raw, key: string): Raw {
   return created;
 }
 
+/**
+ * 目标表：`ZENTAO_TARGETS`（JSON 内容）优先，否则读 `ZENTAO_TARGETS_FILE`。
+ *
+ * 读文件失败时说清楚是哪个路径、失败原因，不要退化成「还没配置目标表」——
+ * 那会把「路径写错了」误报成「没配」，排查时白绕一圈。
+ */
+function targetsOf(env: NodeJS.ProcessEnv): string | undefined {
+  const inline = textOf(env[ENV.targets]);
+  if (inline !== undefined) return inline;
+  const path = textOf(env[ENV.targetsFile]);
+  if (path === undefined) return undefined;
+  try {
+    const text = readFileSync(path, "utf8").trim();
+    return text === "" ? undefined : text;
+  } catch (error) {
+    throw new LifeSaverError("bad-config", `读不到目标表文件 ${path}：${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 /** 环境变量 → schema 的嵌套形状。 */
 export function configFromEnv(env: NodeJS.ProcessEnv): Raw {
   const raw: Raw = {};
   put(raw, "mode", textOf(env[ENV.mode]));
-  put(raw, "targets", textOf(env[ENV.targets]));
+  put(raw, "targets", targetsOf(env));
 
   const http = group(raw, "http");
   put(http, "baseUrl", textOf(env[ENV.baseUrl]));

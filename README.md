@@ -97,6 +97,8 @@ ZENTAO_BASE_URL=... ZENTAO_ACCOUNT=... life-saver-mcp --check
 | `ZENTAO_DISCOVERY_TTL_MS` | `600000` | 探测结果缓存时长 |
 | `ZENTAO_OUTPUT_DIR` | — | 附件落盘目录；留空则放到 `当前目录/zentao-extract/<kind>-<id>` |
 | `ZENTAO_SESSION_ID` | — | commit / work_start 的会话隔离标识；同一任务一直用同一个值，工具参数 `sessionId` 优先 |
+| `ZENTAO_TARGETS` | — | 工作区目标表（JSON 数组内容）。`work_start` 靠它把禅道项目映射到本地仓库 |
+| `ZENTAO_TARGETS_FILE` | — | 工作区目标表 JSON 文件路径；`ZENTAO_TARGETS` 未设时才读它 |
 | `ZENTAO_MAX_ATTACHMENTS` | `40` | 单个对象最多落盘多少个附件 |
 | `ZENTAO_MAX_ATTACHMENT_BYTES` | `20971520` | 单个附件大小上限（超过只记录不落盘） |
 | `ZENTAO_MAX_RELATED` | `8` | 最多递归取多少个关联对象 |

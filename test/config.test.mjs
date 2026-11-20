@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -91,4 +94,42 @@ test("--check 的摘要不出现密码明文", () => {
 
 test("配置文件不是 JSON 对象时报配置错误", () => {
   assert.throws(() => configFromFile(fixture("array.json")), /不是 JSON 对象/);
+});
+
+test("目标表可以指向文件：ZENTAO_TARGETS_FILE 读出来当 targets", () => {
+  const dir = mkdtempSync(join(tmpdir(), "life-saver-targets-"));
+  const file = join(dir, "targets.json");
+  try {
+    writeFileSync(file, JSON.stringify([{ id: "demo", name: "演示", path: "D:/demo", repos: [] }]), "utf8");
+    const loaded = loadConfig({ env: { ZENTAO_TARGETS_FILE: file } });
+    assert.deepEqual(JSON.parse(loaded.config.targets), [
+      { id: "demo", name: "演示", path: "D:/demo", repos: [] },
+    ]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("目标表：内联 ZENTAO_TARGETS 优先于文件", () => {
+  const dir = mkdtempSync(join(tmpdir(), "life-saver-targets-"));
+  const file = join(dir, "targets.json");
+  try {
+    writeFileSync(file, JSON.stringify([{ id: "from-file", name: "文件", path: "D:/f", repos: [] }]), "utf8");
+    const loaded = loadConfig({
+      env: {
+        ZENTAO_TARGETS_FILE: file,
+        ZENTAO_TARGETS: JSON.stringify([{ id: "inline", name: "内联", path: "D:/i", repos: [] }]),
+      },
+    });
+    assert.equal(JSON.parse(loaded.config.targets)[0].id, "inline");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("目标表文件不存在：报出路径，而不是含糊说没配置", () => {
+  assert.throws(
+    () => loadConfig({ env: { ZENTAO_TARGETS_FILE: join(tmpdir(), "definitely-missing-targets.json") } }),
+    /读不到目标表文件.*definitely-missing-targets\.json/,
+  );
 });
