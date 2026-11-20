@@ -25,13 +25,22 @@ function textOf(result) {
   return result.content.filter((block) => block.type === "text").map((block) => block.text).join("\n");
 }
 
-test("tools/list 报出六个工具，每个都有 JSON Schema 与必填项", async () => {
+test("tools/list 报出八个工具，每个都有 JSON Schema 与必填项", async () => {
   const { client, server, service } = await connect();
   const listed = await client.listTools();
-  assert.equal(listed.tools.length, 6);
+  assert.equal(listed.tools.length, 8);
   assert.deepEqual(
     listed.tools.map((tool) => tool.name).sort(),
-    ["zentao_bug_op", "zentao_read", "zentao_search", "zentao_status", "zentao_task_op", "zentao_workhours"],
+    [
+      "zentao_bug_op",
+      "zentao_commit",
+      "zentao_read",
+      "zentao_search",
+      "zentao_status",
+      "zentao_task_op",
+      "zentao_work_start",
+      "zentao_workhours",
+    ],
   );
   for (const tool of listed.tools) {
     assert.equal(typeof tool.description, "string");
@@ -45,6 +54,8 @@ test("tools/list 报出六个工具，每个都有 JSON Schema 与必填项", as
   assert.ok(Array.isArray(read.inputSchema.properties.kind.enum));
   const status = listed.tools.find((tool) => tool.name === "zentao_status");
   assert.deepEqual(status.inputSchema.required, []);
+  const workStart = listed.tools.find((tool) => tool.name === "zentao_work_start");
+  assert.deepEqual(workStart.inputSchema.required, ["kind", "id", "sessionId"]);
   await service.dispose();
   await server.close();
 });

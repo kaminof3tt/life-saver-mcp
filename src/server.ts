@@ -1,5 +1,5 @@
 /**
- * MCP 服务器装配：把六个工具挂到 `tools/list` / `tools/call` 上。
+ * MCP 服务器装配：把工具挂到 `tools/list` / `tools/call` 上。
  *
  * 刻意用低层 `Server` 而不是 `McpServer`：`McpServer` 的 `registerTool` 需要 zod schema，
  * 而我们的参数规格在 core 里本来就是 JSON Schema（`jsonSchemaOf`），再翻一遍 zod
@@ -52,7 +52,7 @@ export function createServer(service: LifeSaverService, identity: ServerIdentity
       };
     }
     try {
-      const value = await tool.run(service, args ?? {}, { cwd: process.cwd() });
+      const value = await tool.run(service, args ?? {}, { cwd: process.cwd(), ...(process.env.ZENTAO_SESSION_ID ? { sessionId: process.env.ZENTAO_SESSION_ID } : {}) });
       return { content: [{ type: "text" as const, text: tool.render(value) }] };
     } catch (error) {
       return { content: [{ type: "text" as const, text: formatError(error) }], isError: true };

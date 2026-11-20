@@ -4,7 +4,7 @@
 
 底层取数与写入逻辑在 [`life-saver-core`](https://www.npmjs.com/package/life-saver-core) 里，和 [DSH 插件版](https://github.com/kaminof3tt/dsh-life-saver) 共用同一份实现——两边的工具描述、参数、排版都来自同一个源，不会各写一套然后慢慢漂移。
 
-## 六个工具
+## 八个工具
 
 | 工具 | 干什么 |
 | --- | --- |
@@ -14,6 +14,11 @@
 | `zentao_workhours` | 某账号在任意时间段做了哪些工作、消耗多少工时，以及「有动作但没记工时」的漏项 |
 | `zentao_task_op` | 写任务：开始 / 记工时 / 完成 / 暂停 / 激活 / 关闭 / 取消 / 备注 |
 | `zentao_bug_op` | 写 BUG：确认 / 解决 / 关闭 / 备注 / 记工时 |
+| `zentao_work_start` | 匹配工作区、同步仓库、记录开工基线；让后续提交能区分本会话改动 |
+| `zentao_commit` | 提交本会话改动，生成「类型 #编号 标题」+ 禅道链接的提交信息 |
+
+`zentao_commit` 的 `files` 收数组（`["src/a.ts", "src/b.ts"]`）；不给时按开工基线算「本次新出现的改动」。
+只提交、不推送，除非显式传 `push: true`；建议先 `dryRun: true` 看一眼清单。
 
 写操作**会真的写入禅道**，没有预览；默认只允许动自己名下的单子（`ZENTAO_WRITE_ALLOW_OTHERS=1` 才放开）。
 
@@ -91,6 +96,7 @@ ZENTAO_BASE_URL=... ZENTAO_ACCOUNT=... life-saver-mcp --check
 | `ZENTAO_DISCOVERY` | `1` | 是否自探索部署差异（皮肤、登录算法、库列能力） |
 | `ZENTAO_DISCOVERY_TTL_MS` | `600000` | 探测结果缓存时长 |
 | `ZENTAO_OUTPUT_DIR` | — | 附件落盘目录；留空则放到 `当前目录/zentao-extract/<kind>-<id>` |
+| `ZENTAO_SESSION_ID` | — | commit / work_start 的会话隔离标识；同一任务一直用同一个值，工具参数 `sessionId` 优先 |
 | `ZENTAO_MAX_ATTACHMENTS` | `40` | 单个对象最多落盘多少个附件 |
 | `ZENTAO_MAX_ATTACHMENT_BYTES` | `20971520` | 单个附件大小上限（超过只记录不落盘） |
 | `ZENTAO_MAX_RELATED` | `8` | 最多递归取多少个关联对象 |
@@ -111,7 +117,8 @@ npm run build        # tsc → lib/
 npm test             # 配置解析、tools/list、tools/call 错误路径、真实 stdio 握手
 ```
 
-依赖 `life-saver-core`。本地要联调未发布的核心包时，先把它装进来（只改 `node_modules`，不动 manifest）：
+依赖 `life-saver-core` 的同版本正式包。要联调本地尚未发布的核心包（比如 core 仓刚改完、还没发包）时，
+把工作区里那份装进来即可；manifest 保持正式版本号不变，发布流水线才不用改：
 
 ```bash
 npm i --no-save ../dsh-life-saver/packages/core
@@ -123,7 +130,7 @@ npm i --no-save ../dsh-life-saver/packages/core
 
 推一个 `v*` tag，或手动触发 `release` workflow（`workflow_dispatch` 带版本号）。workflow 会先确认目标版本的 `life-saver-core` 已经发布到 npm，再改 manifest 里的版本与依赖、构建、发布，全程不需要跨仓凭证。只在 CI 里发布（`NPM_TOKEN` 是仓里的 secret），本地直接 `npm publish` 会绕过版本断言。
 
-另一个 workflow 是 `ci`：推到 `main` 与每个 PR 都跑构建、类型检查和测试。**在 `life-saver-core` 上 npm 之前，它会先探一次依赖能不能安装**——查不到就只留一条 warning 跳过，不会因为 `ETARGET` 红一片；等 core 上线后，同一个 workflow 自动开始真正干活。
+另一个 workflow 是 `ci`：推到 `main` 与每个 PR 都跑构建、类型检查和测试。**manifest 钉的 core 版本还没上 npm 时，它会先探一次**——查不到就只留一条 warning 跳过，不会因为 `ETARGET` 红一片；等 core 上线后，同一个 workflow 自动开始真正干活。
 
 ## 声明
 

@@ -1,5 +1,5 @@
 /**
- * 六个工具的登记表。
+ * 工具登记表。
  *
  * 每个工具的三件事都在 core 里：`spec`（名字/描述/参数）、`run`（执行）、`render`（排版）。
  * 这里只把三件套绑成一行。加工具 = 在 core 加一个 spec+runner+renderer，再在这里加一行。
@@ -10,11 +10,14 @@
 
 import {
   BUGOP_SPEC,
+  COMMIT_SPEC,
   READ_SPEC,
   SEARCH_SPEC,
   STATUS_SPEC,
   TASKOP_SPEC,
   WORKHOURS_SPEC,
+  WORK_START_SPEC,
+  renderCommitToolOutput,
   renderBugOpOutput,
   renderReadOutput,
   renderSearchOutput,
@@ -22,11 +25,14 @@ import {
   renderTaskOpOutput,
   renderWorkhoursOutput,
   runBugOpTool,
+  runCommitTool,
   runReadTool,
   runSearchTool,
   runStatusTool,
   runTaskOpTool,
   runWorkhoursTool,
+  runWorkStartTool,
+  renderWorkStartToolOutput,
   type LifeSaverService,
   type ToolRunContext,
   type ToolSpec,
@@ -61,6 +67,8 @@ export const TOOLS: readonly McpTool[] = [
   bind(WORKHOURS_SPEC, runWorkhoursTool, renderWorkhoursOutput),
   bind(TASKOP_SPEC, runTaskOpTool, renderTaskOpOutput),
   bind(BUGOP_SPEC, runBugOpTool, renderBugOpOutput),
+  bind(COMMIT_SPEC, runCommitTool, renderCommitToolOutput),
+  bind(WORK_START_SPEC, runWorkStartTool, renderWorkStartToolOutput),
 ];
 
 /** 按名字找工具。 */

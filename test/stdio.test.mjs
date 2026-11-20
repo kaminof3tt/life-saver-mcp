@@ -37,7 +37,7 @@ test("stdio 上能握手、能列工具、能调用", async () => {
     assert.equal(info?.version, MANIFEST_VERSION);
 
     const listed = await client.listTools();
-    assert.equal(listed.tools.length, 6);
+    assert.equal(listed.tools.length, 8);
 
     const status = await client.callTool({ name: "zentao_status", arguments: {} });
     assert.equal(status.isError, undefined);
@@ -54,7 +54,7 @@ test("stdlib 出错也走 isError，进程不退出", async () => {
     const bad = await client.callTool({ name: "zentao_search", arguments: {} });
     assert.equal(bad.isError, true);
     const again = await client.listTools();
-    assert.equal(again.tools.length, 6);
+    assert.equal(again.tools.length, 8);
   } finally {
     await client.close();
   }

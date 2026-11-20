@@ -1,6 +1,6 @@
 {
   "name": "life-saver-mcp",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "description": "禅道（ZenTao）MCP 服务器：按编号读需求/任务/BUG 的正文、备注、操作记录与附件；搜禅道；查工时；写任务/BUG（开始、记工时、完成、解决、关闭、备注）。",
   "keywords": [
     "mcp",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.1",
-    "life-saver-core": "0.8.1"
+    "life-saver-core": "0.9.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

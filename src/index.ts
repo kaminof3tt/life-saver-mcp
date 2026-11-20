@@ -36,6 +36,7 @@ const USAGE = `life-saver-mcp —— 禅道（ZenTao）MCP 服务器
   附件 SFTP：ZENTAO_SFTP_HOST、ZENTAO_SFTP_PORT、ZENTAO_SFTP_USER、ZENTAO_SFTP_UPLOAD_BASE
   密码：ZENTAO_PASSWORD、ZENTAO_DB_PASSWORD、ZENTAO_SFTP_PASSWORD（只从环境变量读）
   其它：ZENTAO_MODE=auto|db|http、ZENTAO_WRITE_ENABLED、ZENTAO_WRITE_MODE、ZENTAO_OUTPUT_DIR
+  会话：ZENTAO_SESSION_ID（可选，给 zentao_commit / zentao_work_start 做隔离标识；工具参数优先）
 
   完整清单见 README。密码不会回显，--check 只说「已配置 / 缺」。
 `;

@@ -2,8 +2,8 @@ name: ci
 
 # 每次推到 main 与每个 PR 都跑一遍：构建 + 类型检查 + 19 个用例。
 #
-# 这个包依赖 life-saver-core。它还没发到 npm 之前，安装会直接 ETARGET，
-# 所以这里先探一次：查得到就正常跑，查不到就给一条 warning 跳过——
+# 这个包依赖 life-saver-core 的同版本正式包。manifest 钉的版本还没发到 npm 之前，
+# 安装会直接 ETARGET，所以这里先探一次：查得到就正常跑，查不到就给一条 warning 跳过——
 # 等 core 上线（repo1 的 release 流水线跑完）之后，同样的 workflow 自动开始真正干活。
 
 on:
